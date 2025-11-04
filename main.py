@@ -22,8 +22,8 @@ async def on_ready():
 
 async def cogs():
     await bot.load_extension("cogs.events")
-    await bot.load_extension("cogs.ctf")
-    await bot.load_extension("cogs.team")
+    #await bot.load_extension("cogs.ctf")
+    await bot.load_extension("cogs.teams")
 
 async def main():
     await cogs()
