@@ -1,9 +1,12 @@
 import subprocess
 import json
+from utils.date_to_unix import convert_time
 
-def list_events(number: str, time_start: str, time_stop: str) -> str:
+def list_events(number: str, start: str, finish: str):
 
-    url = f'https://ctftime.org/api/v1/events/?limit={number}&start={time_start}&finish={time_stop}'
+    start, finish = convert_time(start, finish)
+
+    url = f'https://ctftime.org/api/v1/events/?limit={number}&start={start}&finish={finish}'
     cmd = subprocess.run(['curl', '-s', url], capture_output = True, text = True)
     
     try:

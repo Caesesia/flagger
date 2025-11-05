@@ -11,7 +11,7 @@ class Events(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    async def events(self, ctx, number: int, time_start: int, time_stop: int):
+    async def events(self, ctx, number: int, time_start: str, time_stop: str):
         
         if time_start is None:
             time_start = int(datetime.now().timestamp())
@@ -20,15 +20,17 @@ class Events(commands.Cog):
 
         data = list_events(number, time_start, time_stop)
 
+        """
         date_start = datetime.fromtimestamp(time_start)
         date_stop = datetime.fromtimestamp(time_stop)
 
         quickstart = date_start.strftime("%d/%m/%Y (%Hh%M)")
         quickstop = date_stop.strftime("%d/%m/%Y (%Hh%M)")
+        """
 
         try:
             embed = discord.Embed(
-                title=f"📅 Événements CTF du {quickstart} au {quickstop}",
+                title=f"📅  {number} premiers événements CTF du {time_start} au {time_stop}",
                 description="Données récupérées depuis [CTFtime.org](https://ctftime.org/)",
                 color=discord.Color.red()
             )
