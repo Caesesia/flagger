@@ -49,7 +49,7 @@ class Events(commands.Cog):
                         f"**Onsite:** {'Oui' if ctf_onsite else 'Non'}\n"
                         f"**Lieu:** {ctf_location}\n"
                         f"**Liens CTF:** [Site]({ctf_url}) | [CTFtime]({ctftime_url})\n",
-                        f"\n",
+                        "\n",
                     inline=False
                 )
             
