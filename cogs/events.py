@@ -42,7 +42,7 @@ class Events(commands.Cog):
                 embed.add_field(
                     name=f"🚩 {ctf_name} - ID {ctf_id}",
                     value=f"**Organisateur:** {orga_name}\n"
-                        f"**Description:** {ctf_description}\n"
+                        #f"**Description:** {ctf_description}\n"
                         f"**Début:** {ctf_start}\n"
                         f"**Fin:** {ctf_finish}\n"
                         f"**Format:** {ctf_format}\n"
