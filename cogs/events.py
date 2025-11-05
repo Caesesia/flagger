@@ -5,7 +5,6 @@ from utils.long import split
 import json
 from datetime import datetime
 from babel.dates import format_datetime
-import locale
 
 class Events(commands.Cog):
     def __init__(self, bot):
@@ -23,25 +22,13 @@ class Events(commands.Cog):
 
         date_start = datetime.fromtimestamp(time_start)
         date_stop = datetime.fromtimestamp(time_stop)
-        
-        try:
-            locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
-        except:
-            try:
-                locale.setlocale(locale.LC_TIME, 'French')
-            except:
-                pass
-        
-        """
-        date_start = datetime.fromtimestamp(time_start)
-        date_stop = datetime.fromtimestamp(time_stop)
-        start_date_formatted = date_start.strftime("%A %d %B %Y")
-        stop_date_formatted = date_stop.strftime("%A %d %B %Y")
-        """
+
+        quickstart = date_start.strftime("%d/%m/%Y (%Hh%M)")
+        quickstop = date_stop.strftime("%d/%m/%Y (%Hh%M)")
 
         try:
             embed = discord.Embed(
-                title=f"📅 Événements CTF du {date_start} au {date_stop}",
+                title=f"📅 Événements CTF du {quickstart} au {quickstop}",
                 description="Données récupérées depuis [CTFtime.org](https://ctftime.org/)",
                 color=discord.Color.red()
             )
@@ -69,33 +56,25 @@ class Events(commands.Cog):
                         return 'Inconnu'
                     try:
                         dt = datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
-                        return format_datetime(dt, "EEEE d MMMM yyyy à HH:mm", locale='fr')
+                        return format_datetime(dt, "EEEE d MMM y 'à' HH'h'mm", locale='fr')
                     except Exception as e:
-                        return dt_str  # Fallback to original if parsing fails
+                        return dt_str
 
                 
 
                 ctf_start_formatted = format_french_datetime(ctf_start)
                 ctf_finish_formatted = format_french_datetime(ctf_finish)
 
-                """
-                start_dt = datetime.fromisoformat(ctf_start.replace('Z', '+00:00'))
-                ctf_start_formatted = start_dt.strftime("%A %d %B %Y à %H:%M")
-
-                finish_dt = datetime.fromisoformat(ctf_finish.replace('Z', '+00:00'))
-                ctf_finish_formatted = finish_dt.strftime("%A %d %B %Y à %H:%M")
-                """
-
                 embed.add_field(
-                    name=f"🚩 {ctf_name} - ID {ctf_id}",
-                    value=f"**Organisateur:** {orga_name}\n"
-                        #f"**Description:** {ctf_description}\n"
-                        f"**Début:** {ctf_start_formatted}\n"
-                        f"**Fin:** {ctf_finish_formatted}\n"
-                        f"**Format:** {ctf_format}\n"
-                        f"**Onsite:** {'Oui' if ctf_onsite else 'Non'}\n"
-                        f"**Lieu:** {ctf_location}\n"
-                        f"**Liens CTF:** [Site]({ctf_url}) | [CTFtime]({ctftime_url})\n"
+                    name=f"🚩 {ctf_name}",
+                    value=f"**Organisateur :** {orga_name}\n"
+                        #f"**Description :** {ctf_description}\n"
+                        f"**ID :** {ctf_id}\n"
+                        f"**Date :** Du {ctf_start_formatted} au {ctf_finish_formatted}\n"
+                        f"**Format :** {ctf_format}\n"
+                        f"**Onsite :** {'Oui' if ctf_onsite else 'Non'}\n"
+                        f"**Lieu :** {ctf_location}\n"
+                        f"**URLs :** [Site du CTF]({ctf_url}) | [Lien CTFtime]({ctftime_url})\n"
                         "\u200B",
                     inline=False
                 )
