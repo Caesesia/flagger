@@ -51,10 +51,10 @@ class Events(commands.Cog):
                         f"**Liens CTF:** [Site]({ctf_url}) | [CTFtime]({ctftime_url})",
                     inline=False
                 )
-                
-                embed.set_footer(text="Récupéré depuis l'API CTFtime")
-                    await ctx.send(embed=embed)
-                    print("✅ Embed OK")
+            
+            embed.set_footer(text="Récupéré depuis l'API CTFtime")
+            await ctx.send(embed=embed)
+            print("✅ Embed OK")
 
         except Exception as e:
             await ctx.send(f"Erreur: {e}")
