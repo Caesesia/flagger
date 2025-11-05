@@ -4,6 +4,7 @@ from utils.events import list_events, show_event
 from utils.long import split
 import json
 from datetime import datetime
+import locale
 
 class Events(commands.Cog):
     def __init__(self, bot):
@@ -11,11 +12,31 @@ class Events(commands.Cog):
 
     @commands.command()
     async def events(self, ctx, number: int, time_start: int, time_stop: int):
+        
+        if time_start is None:
+            time_start = int(datetime.now().timestamp())
+        if time_stop is None:
+            time_stop = int((datetime.now() + timedelta(days=7)).timestamp())
 
         data = list_events(number, time_start, time_stop)
 
         date_start = datetime.fromtimestamp(time_start)
         date_stop = datetime.fromtimestamp(time_stop)
+        
+        try:
+            locale.setlocale(locale.LC_TIME, 'fr_FR.UTF-8')
+        except:
+            try:
+                locale.setlocale(locale.LC_TIME, 'French')
+            except:
+                pass
+        
+        """
+        date_start = datetime.fromtimestamp(time_start)
+        date_stop = datetime.fromtimestamp(time_stop)
+        start_date_formatted = date_start.strftime("%A %d %B %Y")
+        stop_date_formatted = date_stop.strftime("%A %d %B %Y")
+        """
 
         try:
             embed = discord.Embed(
@@ -39,12 +60,18 @@ class Events(commands.Cog):
                 ctf_finish = event.get('finish', 'Inconnu')
                 ctf_location = event.get('location', 'Inconnu') if ctf_onsite else "En ligne"
                 
+                start_dt = datetime.fromisoformat(ctf_start.replace('Z', '+00:00'))
+                ctf_start_formatted = start_dt.strftime("%A %d %B %Y à %H:%M")
+
+                finish_dt = datetime.fromisoformat(ctf_finish.replace('Z', '+00:00'))
+                ctf_finish_formatted = finish_dt.strftime("%A %d %B %Y à %H:%M")
+
                 embed.add_field(
                     name=f"🚩 {ctf_name} - ID {ctf_id}",
                     value=f"**Organisateur:** {orga_name}\n"
                         #f"**Description:** {ctf_description}\n"
-                        f"**Début:** {ctf_start}\n"
-                        f"**Fin:** {ctf_finish}\n"
+                        f"**Début:** {ctf_start_formatted}\n"
+                        f"**Fin:** {ctf_finish_formatted}\n"
                         f"**Format:** {ctf_format}\n"
                         f"**Onsite:** {'Oui' if ctf_onsite else 'Non'}\n"
                         f"**Lieu:** {ctf_location}\n"
