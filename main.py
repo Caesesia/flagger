@@ -6,7 +6,7 @@ import discord
 import asyncio
 
 from utils.events import list_events, show_event
-from utils.team import show_team
+from utils.teams import show_team
 
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
