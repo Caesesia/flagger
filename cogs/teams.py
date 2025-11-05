@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from utils.team import show_team
+from utils.teams import show_team
 from utils.long import split
 
 class Teams(commands.Cog):
