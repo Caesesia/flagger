@@ -24,35 +24,35 @@ class Events(commands.Cog):
                 color=discord.Color.red()
             )
 
-            orga_name = data['organizers']['name']
-            ctftime_url = data['nom']
-            ctf_name = data['title']
-            ctf_id = data['id']
-            ctf_description = data['description']
-            ctf_format = data['format']
-            ctf_url = data['url']
-            ctf_onsite = data['onsite']
-            ctf_start = data['start']
-            ctf_finish = data['finish']
-            
-            if ctf_onsite == "true":
-                ctf_location = data['location']
-
             for event in data:
 
+                organizers = event.get('organizers', [])
+                orga_name = organizers[0].get('name', 'Inconnu') if organizers else 'Inconnu'
+                ctftime_url = event.get('ctftime_url', 'https://ctftime.org/')
+                ctf_name = event.get('title', 'Événement inconnu')
+                ctf_id = event.get('id', 'N/A')
+                ctf_description = event.get('description', 'Aucune description disponible')
+                ctf_format = event.get('format', 'Inconnu')
+                ctf_url = event.get('url', '#')
+                ctf_onsite = event.get('onsite', False)
+                ctf_start = event.get('start', 'Inconnu')
+                ctf_finish = event.get('finish', 'Inconnu')
+                ctf_location = event.get('location', 'Inconnu') if ctf_onsite else "En ligne"
+                
                 embed.add_field(
                     name=f"🚩 {ctf_name} - ID {ctf_id}",
                     value=f"**Organisateur:** {orga_name}\n"
-                        f"**Description:** {ctftime_description}\n"
+                        f"**Description:** {ctf_description}\n"
                         f"**Début:** {ctf_start}\n"
                         f"**Fin:** {ctf_finish}\n"
                         f"**Format:** {ctf_format}\n"
-                        f"**Onsite:** {ctf_onsite}\n "
+                        f"**Onsite:** {'Oui' if ctf_onsite else 'Non'}\n"
+                        f"**Lieu:** {ctf_location}\n"
                         f"**Liens CTF:** [Site]({ctf_url}) | [CTFtime]({ctftime_url})",
                     inline=False
                 )
-                embed.set_footer(text = "Récupéré depuis l'API CTFtime")
-
+            
+            embed.set_footer(text="Récupéré depuis l'API CTFtime")
                 await ctx.send(embed=embed)
                 print("✅ Embed OK")
 
