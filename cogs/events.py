@@ -4,6 +4,7 @@ from utils.events import list_events, show_event
 from utils.long import split
 import json
 from datetime import datetime
+from babel.dates import format_datetime
 import locale
 
 class Events(commands.Cog):
@@ -60,11 +61,30 @@ class Events(commands.Cog):
                 ctf_finish = event.get('finish', 'Inconnu')
                 ctf_location = event.get('location', 'Inconnu') if ctf_onsite else "En ligne"
                 
+
+
+                def format_french_datetime(dt_str):
+                    
+                    if dt_str == 'Inconnu':
+                        return 'Inconnu'
+                    try:
+                        dt = datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
+                        return format_datetime(dt, "EEEE d MMMM yyyy à HH:mm", locale='fr')
+                    except Exception as e:
+                        return dt_str  # Fallback to original if parsing fails
+
+                
+
+                ctf_start_formatted = format_french_datetime(ctf_start)
+                ctf_finish_formatted = format_french_datetime(ctf_finish)
+
+                """
                 start_dt = datetime.fromisoformat(ctf_start.replace('Z', '+00:00'))
                 ctf_start_formatted = start_dt.strftime("%A %d %B %Y à %H:%M")
 
                 finish_dt = datetime.fromisoformat(ctf_finish.replace('Z', '+00:00'))
                 ctf_finish_formatted = finish_dt.strftime("%A %d %B %Y à %H:%M")
+                """
 
                 embed.add_field(
                     name=f"🚩 {ctf_name} - ID {ctf_id}",
