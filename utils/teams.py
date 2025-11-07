@@ -3,7 +3,7 @@ import json
 
 def show_team(team_id: str) -> str:
 
-    url = f'https://ctftime.org/api/v1/teams/{team_id}'
+    url = f'https://ctftime.org/api/v1/teams/{team_id}/'
 
     cmd = subprocess.run(['curl', '-s', url], capture_output = True, text = True)
     

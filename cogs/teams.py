@@ -13,15 +13,21 @@ class Teams(commands.Cog):
         data = show_team(team_id)
 
         try:
-            user_id = data['id_auteur']
-            user_name = data['nom']
+            team_name = data.get('name', 'Inconnu')
+            team_id = data.get('id', 'Inconnu')
+            main_alias = data.get('primary_alias', 'Inconnu')
+            academic = data.get('academic', 'Inconnu')
+            country = data.get('country', 'Inconnu')
 
             embed = discord.Embed(
-                title=f"Utilisateur: {user_name}",
-                description=f"🔗 [Lien vers le profil Root-Me](https://www.root-me.org/{user_name})",
+                title=f"Équipe: {team_name}",
+                description=f"🔗 [Lien vers la page de l'équipe](https://ctftime.org/team/{team_id})",
                 color=discord.Color.red()
             )
-            embed.add_field(name="Identifiant", value=user_id, inline=True)
+            embed.add_field(name="**Identifiant :**", value=team_id, inline=True)
+            embed.add_field(name="**Alias :**", value=main_alias, inline=True)
+            embed.add_field(name="**Académique :**", value="Oui" if academic == "true" else "Non", inline=True)
+            embed.add_field(name="**Pays :**", value=country, inline=True)
             embed.set_footer(text = "Récupéré depuis l'API CTFtime")
 
             await ctx.send(embed=embed)
