@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from utils.events import list_events, show_event
 from utils.long import split
+from utils.pagination import Paginator
 import json
 from datetime import datetime
 from babel.dates import format_datetime
@@ -20,98 +21,74 @@ class Events(commands.Cog):
 
         data = list_events(number, time_start, time_stop)
 
-        """
-        date_start = datetime.fromtimestamp(time_start)
-        date_stop = datetime.fromtimestamp(time_stop)
+        pages = []
 
-        quickstart = date_start.strftime("%d/%m/%Y (%Hh%M)")
-        quickstop = date_stop.strftime("%d/%m/%Y (%Hh%M)")
-        """
+        for event in data:
 
-        try:
+            organizers = event.get('organizers', [])
+            orga_name = organizers[0].get('name', 'Inconnu') if organizers else 'Inconnu'
+            ctftime_url = event.get('ctftime_url', 'https://ctftime.org/')
+            ctf_name = event.get('title', 'Événement inconnu')
+            ctf_id = event.get('id', 'N/A')
+            ctf_description = event.get('description', 'Aucune description disponible')
+            ctf_format = event.get('format', 'Inconnu')
+            ctf_url = event.get('url', '#')
+            ctf_onsite = event.get('onsite', False)
+            ctf_start = event.get('start', 'Inconnu')
+            ctf_finish = event.get('finish', 'Inconnu')
+            ctf_location = event.get('location', 'Inconnu') if ctf_onsite else "En ligne"
+            
+
+
+            def format_french_datetime(dt_str):
+                
+                if dt_str == 'Inconnu':
+                    return 'Inconnu'
+                try:
+                    dt = datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
+                    return format_datetime(dt, "EEEE d MMM y 'à' HH'h'mm", locale='fr')
+                except Exception as e:
+                    return dt_str
+
+            
+
+            ctf_start_formatted = format_french_datetime(ctf_start)
+            ctf_finish_formatted = format_french_datetime(ctf_finish)
+
             embed = discord.Embed(
                 title=f"📅  {number} premiers événements CTF du {time_start} au {time_stop}",
                 description="Données récupérées depuis [CTFtime.org](https://ctftime.org/)",
                 color=discord.Color.red()
             )
 
-            for event in data:
-
-                organizers = event.get('organizers', [])
-                orga_name = organizers[0].get('name', 'Inconnu') if organizers else 'Inconnu'
-                ctftime_url = event.get('ctftime_url', 'https://ctftime.org/')
-                ctf_name = event.get('title', 'Événement inconnu')
-                ctf_id = event.get('id', 'N/A')
-                ctf_description = event.get('description', 'Aucune description disponible')
-                ctf_format = event.get('format', 'Inconnu')
-                ctf_url = event.get('url', '#')
-                ctf_onsite = event.get('onsite', False)
-                ctf_start = event.get('start', 'Inconnu')
-                ctf_finish = event.get('finish', 'Inconnu')
-                ctf_location = event.get('location', 'Inconnu') if ctf_onsite else "En ligne"
-                
-
-
-                def format_french_datetime(dt_str):
-                    
-                    if dt_str == 'Inconnu':
-                        return 'Inconnu'
-                    try:
-                        dt = datetime.fromisoformat(dt_str.replace('Z', '+00:00'))
-                        return format_datetime(dt, "EEEE d MMM y 'à' HH'h'mm", locale='fr')
-                    except Exception as e:
-                        return dt_str
-
-                
-
-                ctf_start_formatted = format_french_datetime(ctf_start)
-                ctf_finish_formatted = format_french_datetime(ctf_finish)
-
-                embed.add_field(
+            embed.add_field(
                     name=f"🚩 {ctf_name}",
                     value=f"**Organisateur :** {orga_name}\n"
-                        #f"**Description :** {ctf_description}\n"
-                        f"**ID :** {ctf_id}\n"
-                        f"**Date :** Du {ctf_start_formatted} au {ctf_finish_formatted}\n"
-                        f"**Format :** {ctf_format}\n"
-                        f"**Onsite :** {'Oui' if ctf_onsite else 'Non'}\n"
-                        f"**Lieu :** {ctf_location}\n"
-                        f"**URLs :** [Site du CTF]({ctf_url}) | [Lien CTFtime]({ctftime_url})\n"
-                        "\u200B",
+                    #f"**Description :** {ctf_description}\n"
+                    f"**ID :** {ctf_id}\n"
+                    f"**Date :** Du {ctf_start_formatted} au {ctf_finish_formatted}\n"
+                    f"**Format :** {ctf_format}\n"
+                    f"**Onsite :** {'Oui' if ctf_onsite else 'Non'}\n"
+                    f"**Lieu :** {ctf_location}\n",
                     inline=False
                 )
-            
-            embed.set_footer(text="Récupéré depuis l'API CTFtime")
-            await ctx.send(embed=embed)
-            print("✅ Embed OK")
 
-        except Exception as e:
-            await ctx.send(f"Erreur: {e}")
-            print(f"❌ Error NON OK: {e}")
+            embed.add_field(
+                    name = "Liens",
+                    value = f"**URLs :** [Site du CTF]({ctf_url}) | [Lien CTFtime]({ctftime_url})\n",
+                    inline = False
+                )
+        
+            embed.set_footer(
+                    text = f"Récupéré depuis l'API CTFtime\nPage {len(pages) + 1}"
+                )
 
-    @commands.command()
-    async def ctf(self, ctx, event_id: str):
+            pages.append(embed)
 
-        data = show_event(event_id)
+        view = Paginator(pages)
+        await ctx.send(embed = pages[0], view = view)
 
-        try:
-            user_id = data['id_auteur']
-            user_name = data['nom']
 
-            embed = discord.Embed(
-                title=f"Utilisateur: {user_name}",
-                description=f"🔗 [Lien vers le profil Root-Me](https://www.root-me.org/{user_name})",
-                color=discord.Color.red()
-            )
-            embed.add_field(name="Identifiant", value=user_id, inline=True)
-            embed.set_footer(text = "Récupéré depuis l'API CTFtime")
-
-            await ctx.send(embed=embed)
-            print("✅ Embed OK")
-
-        except Exception as e:
-            await ctx.send(f"Erreur: {e}")
-            print(f"❌ Error NON OK: {e}")
 
 async def setup(bot):
     await bot.add_cog(Events(bot))
